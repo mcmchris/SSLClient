@@ -98,7 +98,14 @@ public:
                         const size_t trust_anchors_num, 
                         const int analog_pin, 
                         const size_t max_sessions = 1,
+                        const size_t buffer_size = 2048, 
                         const DebugLevel debug = SSL_WARN);
+
+    /**
+     * @brief Destructor
+     * Frees the dynamically allocated m_iobuf.
+     */
+    ~SSLClient();
 
     //========================================
     //= Functions implemented in SSLClient.cpp
@@ -466,7 +473,8 @@ private:
      * As a rule of thumb SSLClient will fail if it does not have at least 8000 bytes when starting a
      * connection.
      */
-    unsigned char m_iobuf[2048];
+    unsigned char* m_iobuf;
+    size_t m_iobuf_size;
     // store the index of where we are writing in the buffer
     // so we can send our records all at once to prevent
     // weird timing issues
