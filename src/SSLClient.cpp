@@ -76,16 +76,16 @@ SSLClient::SSLClient(   Client& client,
                         const size_t max_sessions,
                         const size_t buffer_size,
                         const DebugLevel debug)
-    : m_client(client) 
+: m_client(client) 
     , m_sessions()
     , m_max_sessions(max_sessions)
-    , m_iobuf(nullptr) 
-    , m_iobuf_size(buffer_size)
-    , m_analog_pin(analog_pin)
+    , m_analog_pin(analog_pin)       // <-- Movido hacia arriba para coincidir con el .h
     , m_debug(debug)
     , m_is_connected(false)
     , m_timeout(30000)
     , m_insecure_mode(false)
+    , m_iobuf(nullptr)               // <-- Movido hacia abajo
+    , m_iobuf_size(buffer_size)      // <-- Movido hacia abajo
     , m_write_idx(0)
     , m_br_last_state(0) {
 
@@ -366,7 +366,7 @@ int SSLClient::m_start_ssl(const char* host, SSLSession* ssl_ses) {
 int SSLClient::m_run_until(const unsigned target) {
     const char* func_name = __func__;
     unsigned lastState = 0;
-    size_t lastLen = 0;
+    //size_t lastLen = 0;
     const unsigned long start = millis();
     for (;;) {
         // --- FIX CRITICO PARA S2: yield() ---
