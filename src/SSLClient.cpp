@@ -321,8 +321,21 @@ int SSLClient::m_start_ssl(const char* host, SSLSession* ssl_ses) {
     const char* func_name = __func__;
     setWriteError(SSL_OK);
     uint8_t rng_seeds[16];
-    for (uint8_t i = 0; i < sizeof rng_seeds; i++) 
-        rng_seeds[i] = static_cast<uint8_t>(analogRead(m_analog_pin));
+    for (uint8_t i = 0; i < sizeof rng_seeds; i++) {
+        if (m_analog_pin >= 0) {
+            // Comportamiento original si se define un pin válido
+            rng_seeds[i] = static_cast<uint8_t>(analogRead(m_analog_pin));
+        } else {
+            // Si el pin es -1, usamos una alternativa mejor
+#if defined(ESP32)
+            // Generador de hardware real del ESP32 (Muy recomendado para SSL)
+            rng_seeds[i] = static_cast<uint8_t>(esp_random() & 0xFF);
+#else
+            // Fallback genérico para otras placas (Arduino, etc.)
+            rng_seeds[i] = static_cast<uint8_t>(random(256));
+#endif
+        }
+    }
     br_ssl_engine_inject_entropy(&m_sslctx.eng, rng_seeds, sizeof rng_seeds);
     if(ssl_ses != nullptr) {
         br_ssl_engine_set_session_parameters(&m_sslctx.eng, ssl_ses->to_br_session());
